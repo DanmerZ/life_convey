@@ -14,27 +14,31 @@ window.onload = function() {
 
     Game.prototype.start = function() {
         this.field = {
-            cells: []          
+            cells: [],
+            nextgen: []
         };     
         this.field.cells = new Array(this.N);
+        this.field.nextgen = new Array(this.N);
         for (var i = 0; i < this.M; i++) {
             this.field.cells[i] = new Array(this.M);
+            this.field.nextgen[i] = new Array(this.M);
         }
-        this._rand(.525);       
+        this._rand(.7);       
     };
 
     Game.prototype._rand = function(param) {
         for (var i = 0; i < this.N; i++) {
             for (var j = 0; j < this.M; j++) {
-                this.field.cells[i][j] = Math.round(param*Math.random());
+                this.field.cells[i][j] = Math.round(param*Math.random());     
+                this.field.nextgen[i][j] = this.field.cells[i][j];    
             }
         } 
     };
 
-    Game.prototype.fill = function() {
+    Game.prototype.fill = function(c) {
         for (var i = 0; i < this.N; i++) {
             for (var j = 0; j < this.M; j++) {                
-                if (this.field.cells[i][j] === 0) {
+                if (c[i][j] === 0) {
                     ctx.fillStyle = 'white';
                 } else {
                     ctx.fillStyle = 'black';
@@ -53,30 +57,37 @@ window.onload = function() {
         }     
     };
 
-    Game.prototype.check = function() {
+    Game.prototype.check = function(c,n) {          
         for (var i = 0; i < this.N; i++) {
             for (var j = 0; j < this.M; j++) {                
-                var cells = this.field.cells;
-                var sum = this._sum(i,j);
+                
+                var sum = this._sum(c,i,j);
 
-                if (cells[i][j] === 1) {
-                    if (sum === 0) {
-                        cells[i][j] = 0;  // alone -> die
+                if (c[i][j] === 1) {
+                    if (sum < 2) {
+                        n[i][j] = 0;  // alone -> die
                     }
                     if (sum > 3) {
-                        cells[i][j] = 0; // to many neighborers -> die
+                        n[i][j] = 0; // to many neighbors -> die
                     }
                 } else {
                     if (sum === 3) {
-                        cells[i][j] = 1;  // new life
+                        n[i][j] = 1;  // new life
                     }
-                }
+                }                
             }
-        }  
+        } 
+        this.clear();
+        this.fill(n);
+        
+        for(var i = 0; i < this.M; i++) {
+            for (var j = 0; j < this.N; j++) {
+                c[i][j] = n[i][j];
+            }
+        }
     };
 
-    Game.prototype._sum = function(i,j) {
-        var c = this.field.cells;  
+    Game.prototype._sum = function(c,i,j) {        
         var sum = 0;
         for (var ii = i-1; ii <= i+1; ii++) {
             for (var jj=j-1; jj <= j+1; jj++) {
@@ -89,16 +100,17 @@ window.onload = function() {
 
     Game.prototype.cycle = function() {
         var that = this;
+        var flag = true;
         setInterval(function(){
-            that.check();
-            that.clear();
-            that.fill();          
+            flag ? that.check(that.field.cells,that.field.nextgen) : that.check(that.field.nextgen,that.field.cells);            
+            flag = !flag;            
+                    
         },1000);  
     };
 
     var game = new Game(50,50);
     game.start();
-    game.fill();
+    game.fill(game.field.cells);
     game.cycle();
 
 
