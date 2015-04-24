@@ -4,7 +4,7 @@ window.onload = function() {
     var w = canvas.width;
     var h = canvas.height;
 
-    ctx.strokeStyle = "black";
+    ctx.strokeStyle = "red";
 
     function Game(N,M) {
         this.N = N;
@@ -23,16 +23,23 @@ window.onload = function() {
             this.field.cells[i] = new Array(this.M);
             this.field.nextgen[i] = new Array(this.M);
         }
-        this._rand(.7);       
+        this._rand(1);       
     };
 
     Game.prototype._rand = function(param) {
         for (var i = 0; i < this.N; i++) {
             for (var j = 0; j < this.M; j++) {
-                this.field.cells[i][j] = Math.round(param*Math.random());     
+                this.field.cells[i][j] = 0; //Math.round(param*Math.random());     
                 this.field.nextgen[i][j] = this.field.cells[i][j];    
             }
         } 
+        
+        this.field.cells[0][1] = this.field.nextgen[0][1] = 1;
+        this.field.cells[1][2] = this.field.nextgen[1][2] = 1;
+        this.field.cells[2][2] = this.field.nextgen[2][2] = 1;
+        this.field.cells[2][1] = this.field.nextgen[2][1] = 1;
+        this.field.cells[2][0] = this.field.nextgen[2][0] = 1;
+            
     };
 
     Game.prototype.fill = function(c) {
@@ -57,7 +64,7 @@ window.onload = function() {
         }     
     };
 
-    Game.prototype.check = function(c,n) {          
+    Game.prototype.check = function(c,n) {         
         for (var i = 0; i < this.N; i++) {
             for (var j = 0; j < this.M; j++) {                
                 
@@ -77,7 +84,7 @@ window.onload = function() {
                 }                
             }
         } 
-        this.clear();
+        //this.clear();
         this.fill(n);
         
         for(var i = 0; i < this.M; i++) {
@@ -94,7 +101,8 @@ window.onload = function() {
                 if (!(ii === -1 || jj === -1 || ii === this.N || jj === this.M || (ii===i&&jj===j))) 
                     sum += c[ii][jj];
             } 
-        }
+        } 
+        
         return sum;
     }
 
@@ -102,13 +110,14 @@ window.onload = function() {
         var that = this;
         var flag = true;
         setInterval(function(){
-            flag ? that.check(that.field.cells,that.field.nextgen) : that.check(that.field.nextgen,that.field.cells);            
+            //flag ? that.check(that.field.cells,that.field.nextgen) : that.check(that.field.nextgen,that.field.cells); 
+            that.check(that.field.cells,that.field.nextgen)
             flag = !flag;            
                     
         },1000);  
     };
 
-    var game = new Game(50,50);
+    var game = new Game(10,10);
     game.start();
     game.fill(game.field.cells);
     game.cycle();
