@@ -107,17 +107,13 @@ window.onload = function() {
     }
 
     Game.prototype.cycle = function() {
-        var that = this;
-        var flag = true;
-        setInterval(function(){
-            //flag ? that.check(that.field.cells,that.field.nextgen) : that.check(that.field.nextgen,that.field.cells); 
-            that.check(that.field.cells,that.field.nextgen)
-            flag = !flag;            
-                    
-        },1000);  
+        var that = this;        
+        setInterval(function(){            
+            that.check(that.field.cells,that.field.nextgen);    
+        },400);  
     };
 
-    var game = new Game(10,10);
+    var game = new Game(50,50);
     game.start();
     game.fill(game.field.cells);
     game.cycle();
